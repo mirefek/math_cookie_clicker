@@ -3,7 +3,7 @@ import itertools
 class OrdMonomial:
     def __init__(self, exponent, coef):
         assert isinstance(exponent, Ordinal)
-        assert isinstance(coef, int)
+        assert isinstance(coef, (int, float))
         assert coef > 0
         self.exponent = exponent
         self.coef = coef
@@ -30,7 +30,7 @@ class OrdMonomial:
 class Ordinal:
     def __init__(self, monomials):
         assert all(
-            a.exponent > b.exponent
+            a.exponent >= b.exponent
             for a,b in itertools.pairwise(monomials)
         )
         self.monomials = tuple(monomials)
@@ -56,6 +56,12 @@ class Ordinal:
         return 0
     def __lt__(self, other):
         return self.cmp(other) < 0
+    def __le__(self, other):
+        return self.cmp(other) <= 0
+    def __gt__(self, other):
+        return self.cmp(other) > 0
+    def __ge__(self, other):
+        return self.cmp(other) >= 0
 
     @property
     def is_zero(self):
@@ -116,14 +122,14 @@ def s(*args):
     for arg in args:
         if isinstance(arg, OrdMonomial):
             monomials.append(arg)
-        elif isinstance(arg, int):
+        elif isinstance(arg, (int, float)):
             monomials.append(OrdMonomial(ordinal_zero, arg))
         else:
             raise Exception(f"Unexpected ordinal sum argument: {arg}")
     return Ordinal(monomials)
 
 def w(exp, coef = 1):
-    if isinstance(exp, int):
+    if isinstance(exp, (float, int)):
         exp = s(exp)
     elif isinstance(exp, OrdMonomial):
         exp = Ordinal([exp])
